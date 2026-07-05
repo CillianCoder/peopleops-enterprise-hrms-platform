@@ -24,6 +24,7 @@ final class User extends Authenticatable implements MustVerifyEmail
         'company_id',
         'name',
         'email',
+        'nic',
         'password',
         'job_title',
         'phone',
@@ -59,7 +60,7 @@ final class User extends Authenticatable implements MustVerifyEmail
     {
         return LogOptions::defaults()
             ->useLogName('users')
-            ->logOnly(['name', 'email', 'job_title', 'phone', 'status', 'company_id'])
+            ->logOnly(['name', 'email', 'nic', 'job_title', 'phone', 'status', 'company_id'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }

@@ -21,6 +21,7 @@ final class UserFactory extends Factory
         return [
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
+            'nic' => fake()->unique()->bothify('#########?'),
             'email_verified_at' => now(),
             'password' => self::$password ??= Hash::make('Password!123'),
             'remember_token' => Str::random(10),

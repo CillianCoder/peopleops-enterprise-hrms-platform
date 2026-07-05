@@ -12,4 +12,16 @@ npm-debug.log
 yarn-error.log
 /.idea
 /.vscode
-Personal-Agent.md
+/.fleet
+/.nova
+/.phpstorm.meta.php
+/.DS_Store
+*.log
+*.swp
+*.swo
+*.tmp
+*.orig
+coverage/
+dist/
+build/
+*.local

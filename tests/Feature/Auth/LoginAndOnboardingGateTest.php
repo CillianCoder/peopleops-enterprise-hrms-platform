@@ -31,3 +31,20 @@ it('allows dashboard access after company onboarding', function (): void {
 
     $this->actingAs($admin)->get('/dashboard')->assertOk();
 });
+
+it('logs out suspended users on the next authenticated request', function (): void {
+    $this->seed(DatabaseSeeder::class);
+
+    $company = Company::factory()->create();
+    $user = User::factory()->for($company)->create([
+        'status' => 'suspended',
+    ]);
+    $user->assignRole(UserRole::Employee->value);
+
+    $this->actingAs($user)
+        ->get('/dashboard')
+        ->assertRedirect('/login')
+        ->assertSessionHas('error');
+
+    $this->assertGuest();
+});

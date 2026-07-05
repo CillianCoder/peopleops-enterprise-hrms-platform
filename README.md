@@ -319,8 +319,7 @@ Expected engineering standards:
 Default roles:
 
 - Super Admin
-- HR Manager
-- Recruiter
+- HR Manager, including recruitment operations
 - Department Manager
 - Finance Officer
 - Employee
@@ -609,7 +608,7 @@ Browser tests should cover the main user journeys:
 
 - HR creates an employee
 - Candidate applies for a job
-- Recruiter moves candidate through stages
+- HR Manager moves candidate through stages
 - Employee requests leave
 - Manager approves leave
 - HR generates payroll

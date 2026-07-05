@@ -6,35 +6,35 @@ namespace App\Actions\Users;
 
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\ValidationException;
 use Spatie\Permission\Models\Role;
 
 final readonly class CreateManagedUser
 {
-    public function handle(User $actor, array $data): User
+    public function handle(User $actor, array $data): array
     {
-        return DB::transaction(function () use ($actor, $data): User {
+        return DB::transaction(function () use ($actor, $data): array {
             if ($actor->company_id === null) {
                 throw ValidationException::withMessages([
                     'company' => 'Complete company onboarding before adding users.',
                 ]);
             }
 
+            $temporaryPassword = str()->password(14, symbols: true, spaces: false);
+
             $user = User::query()->create([
                 'company_id' => $actor->company_id,
                 'name' => $data['name'],
                 'email' => mb_strtolower($data['email']),
-                'password' => str()->password(32),
+                'nic' => mb_strtoupper($data['nic']),
+                'password' => $temporaryPassword,
                 'job_title' => $data['job_title'] ?? null,
                 'phone' => $data['phone'] ?? null,
-                'status' => 'invited',
+                'status' => 'active',
             ]);
 
             Role::findOrCreate($data['role'], 'web');
             $user->assignRole($data['role']);
-
-            Password::sendResetLink(['email' => $user->email]);
 
             activity('users')
                 ->causedBy($actor)
@@ -43,7 +43,10 @@ final readonly class CreateManagedUser
                 ->withProperties(['role' => $data['role']])
                 ->log('User was created by an administrator.');
 
-            return $user;
+            return [
+                'user' => $user,
+                'temporary_password' => $temporaryPassword,
+            ];
         });
     }
 }

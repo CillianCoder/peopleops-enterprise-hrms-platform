@@ -20,6 +20,12 @@ final class DatabaseSeeder extends Seeder
             'users.create',
             'users.update',
             'users.deactivate',
+            'users.delete',
+            'roles.view',
+            'roles.create',
+            'roles.update',
+            'roles.delete',
+            'permissions.view',
             'audit.view',
         ];
 
@@ -38,9 +44,6 @@ final class DatabaseSeeder extends Seeder
             ->syncPermissions(['dashboard.view', 'users.view', 'users.create', 'users.update']);
 
         Role::findByName(UserRole::DepartmentManager->value)
-            ->syncPermissions(['dashboard.view']);
-
-        Role::findByName(UserRole::Recruiter->value)
             ->syncPermissions(['dashboard.view']);
 
         Role::findByName(UserRole::FinanceOfficer->value)

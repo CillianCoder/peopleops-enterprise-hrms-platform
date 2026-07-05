@@ -8,7 +8,6 @@ enum UserRole: string
 {
     case SuperAdmin = 'super_admin';
     case HrManager = 'hr_manager';
-    case Recruiter = 'recruiter';
     case DepartmentManager = 'department_manager';
     case FinanceOfficer = 'finance_officer';
     case Employee = 'employee';
@@ -19,7 +18,6 @@ enum UserRole: string
         return match ($this) {
             self::SuperAdmin => 'System Administrator',
             self::HrManager => 'HR Manager',
-            self::Recruiter => 'Recruiter',
             self::DepartmentManager => 'Department Manager',
             self::FinanceOfficer => 'Finance Officer',
             self::Employee => 'Employee',

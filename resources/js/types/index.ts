@@ -22,6 +22,11 @@ export interface SharedProps {
     flash: {
         success?: string | null;
         error?: string | null;
+        createdLogin?: {
+            name: string;
+            email: string;
+            password: string;
+        } | null;
     };
 }
 

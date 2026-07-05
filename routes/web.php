@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\RoleManagementController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\NewPasswordController;
@@ -33,7 +34,7 @@ Route::middleware('guest')->group(function (): void {
     Route::post('reset-password', [NewPasswordController::class, 'store'])->name('password.store');
 });
 
-Route::middleware('auth')->group(function (): void {
+Route::middleware(['auth', 'active.account'])->group(function (): void {
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 
     Route::get('email/verify', fn () => redirect()->route('dashboard'))
@@ -74,5 +75,18 @@ Route::middleware('auth')->group(function (): void {
         Route::put('admin/users/{user}', [UserManagementController::class, 'update'])
             ->middleware('permission:users.update')
             ->name('admin.users.update');
+        Route::delete('admin/users/{user}', [UserManagementController::class, 'destroy'])
+            ->middleware('permission:users.delete')
+            ->name('admin.users.destroy');
+
+        Route::post('admin/roles', [RoleManagementController::class, 'store'])
+            ->middleware('permission:roles.create')
+            ->name('admin.roles.store');
+        Route::put('admin/roles/{role}', [RoleManagementController::class, 'update'])
+            ->middleware('permission:roles.update')
+            ->name('admin.roles.update');
+        Route::delete('admin/roles/{role}', [RoleManagementController::class, 'destroy'])
+            ->middleware('permission:roles.delete')
+            ->name('admin.roles.destroy');
     });
 });
