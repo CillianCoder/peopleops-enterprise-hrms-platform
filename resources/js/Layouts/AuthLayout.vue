@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import BrandMark from '@/Components/BrandMark.vue';
 import ThemeToggle from '@/Components/ThemeToggle.vue';
 
 defineProps<{
@@ -17,9 +18,7 @@ defineProps<{
             </div>
             <div class="w-full max-w-md">
                 <div class="mb-8 flex items-center gap-3">
-                    <div class="grid size-10 place-items-center rounded-lg bg-purple-700 text-sm font-bold text-white">
-                        PO
-                    </div>
+                    <BrandMark />
                     <div>
                         <p class="text-sm font-semibold text-slate-950 dark:text-slate-50">PeopleOps</p>
                         <p class="text-xs text-slate-500 dark:text-slate-400">Enterprise HRMS</p>

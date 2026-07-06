@@ -33,6 +33,16 @@ final class AuthenticatedSessionController extends Controller
 
         $request->user()?->forceFill(['last_login_at' => now()])->save();
 
+        activity('security')
+            ->causedBy($request->user())
+            ->performedOn($request->user())
+            ->event('login_succeeded')
+            ->withProperties([
+                'ip' => $request->ip(),
+                'user_agent' => str((string) $request->userAgent())->limit(180)->toString(),
+            ])
+            ->log('User signed in.');
+
         if ($request->user()?->company?->onboarding_completed_at === null && $request->user()?->can('company.update')) {
             return redirect()->intended(route('company.onboarding.edit'));
         }
@@ -42,6 +52,18 @@ final class AuthenticatedSessionController extends Controller
 
     public function destroy(Request $request): RedirectResponse
     {
+        $user = $request->user();
+
+        activity('security')
+            ->causedBy($user)
+            ->performedOn($user)
+            ->event('logout_succeeded')
+            ->withProperties([
+                'ip' => $request->ip(),
+                'user_agent' => str((string) $request->userAgent())->limit(180)->toString(),
+            ])
+            ->log('User signed out.');
+
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();

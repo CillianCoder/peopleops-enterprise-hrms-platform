@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { Link, router, usePage } from '@inertiajs/vue3';
-import { Building2, LayoutDashboard, LogOut, ShieldCheck, UsersRound } from '@lucide/vue';
+import { Building2, ClipboardList, LayoutDashboard, LogOut, ShieldCheck, UsersRound } from '@lucide/vue';
 import { computed } from 'vue';
+import BrandMark from '@/Components/BrandMark.vue';
 import ThemeToggle from '@/Components/ThemeToggle.vue';
 import type { SharedProps } from '@/types';
 
@@ -14,6 +15,7 @@ const page = usePage<SharedProps>();
 
 const user = computed(() => page.props.auth.user);
 const company = computed(() => page.props.company);
+const canViewAudit = computed(() => user.value?.permissions.includes('audit.view') ?? false);
 
 function logout(): void {
     router.post('/logout');
@@ -30,7 +32,7 @@ function logout(): void {
                     alt=""
                     class="size-9 rounded-md border border-slate-200 object-contain dark:border-slate-700"
                 >
-                <div v-else class="grid size-9 place-items-center rounded-md bg-purple-700 text-xs font-bold text-white">PO</div>
+                <BrandMark v-else size="sm" />
                 <div>
                     <p class="text-sm font-semibold text-slate-950 dark:text-slate-50">{{ company?.name ?? 'PeopleOps' }}</p>
                     <p class="text-xs text-slate-500 dark:text-slate-400">Admin workspace</p>
@@ -58,6 +60,14 @@ function logout(): void {
                 >
                     <Building2 class="size-4" />
                     Company Profile
+                </Link>
+                <Link
+                    v-if="canViewAudit"
+                    href="/admin/audit"
+                    class="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-900"
+                >
+                    <ClipboardList class="size-4" />
+                    Audit Logs
                 </Link>
             </nav>
         </aside>

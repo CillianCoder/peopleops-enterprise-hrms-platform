@@ -34,13 +34,35 @@ final class LoginRequest extends FormRequest
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
+            activity('security')
+                ->event('login_failed')
+                ->withProperties([
+                    'attempted_email' => mb_strtolower($this->string('email')->toString()),
+                    'ip' => $this->ip(),
+                    'user_agent' => str((string) $this->userAgent())->limit(180)->toString(),
+                ])
+                ->log('Sign-in failed.');
+
             throw ValidationException::withMessages([
                 'email' => trans('auth.failed'),
             ]);
         }
 
         if (Auth::user()?->status !== 'active' && Auth::user()?->status !== 'invited') {
+            $user = Auth::user();
+
             Auth::logout();
+
+            activity('security')
+                ->causedBy($user)
+                ->performedOn($user)
+                ->event('login_blocked')
+                ->withProperties([
+                    'status' => $user?->status,
+                    'ip' => $this->ip(),
+                    'user_agent' => str((string) $this->userAgent())->limit(180)->toString(),
+                ])
+                ->log('Sign-in was blocked because the account is not active.');
 
             throw ValidationException::withMessages([
                 'email' => 'This account is not active. Contact your PeopleOps administrator.',

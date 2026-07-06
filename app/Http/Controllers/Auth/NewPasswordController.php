@@ -43,6 +43,15 @@ final class NewPasswordController extends Controller
                 ])->save();
 
                 event(new PasswordReset($user));
+
+                activity('security')
+                    ->causedBy($user)
+                    ->performedOn($user)
+                    ->event('password_reset_completed')
+                    ->withProperties([
+                        'ip' => $request->ip(),
+                    ])
+                    ->log('Password was reset.');
             },
         );
 

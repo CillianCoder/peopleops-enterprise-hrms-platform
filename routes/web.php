@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\RoleManagementController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
@@ -34,7 +35,7 @@ Route::middleware('guest')->group(function (): void {
     Route::post('reset-password', [NewPasswordController::class, 'store'])->name('password.store');
 });
 
-Route::middleware(['auth', 'active.account'])->group(function (): void {
+Route::middleware(['auth', 'active.account', 'audit.write'])->group(function (): void {
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 
     Route::get('email/verify', fn () => redirect()->route('dashboard'))
@@ -43,11 +44,25 @@ Route::middleware(['auth', 'active.account'])->group(function (): void {
     Route::get('email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
         $request->fulfill();
 
+        activity('security')
+            ->causedBy($request->user())
+            ->performedOn($request->user())
+            ->event('email_verified')
+            ->withProperties(['ip' => $request->ip()])
+            ->log('Email address was verified.');
+
         return redirect()->route('dashboard')->with('success', 'Email address verified.');
     })->middleware('signed')->name('verification.verify');
 
     Route::post('email/verification-notification', function (Request $request) {
         $request->user()->sendEmailVerificationNotification();
+
+        activity('security')
+            ->causedBy($request->user())
+            ->performedOn($request->user())
+            ->event('verification_link_requested')
+            ->withProperties(['ip' => $request->ip()])
+            ->log('Email verification link was requested.');
 
         return back()->with('success', 'Verification link sent.');
     })->middleware('throttle:6,1')->name('verification.send');
@@ -88,5 +103,9 @@ Route::middleware(['auth', 'active.account'])->group(function (): void {
         Route::delete('admin/roles/{role}', [RoleManagementController::class, 'destroy'])
             ->middleware('permission:roles.delete')
             ->name('admin.roles.destroy');
+
+        Route::get('admin/audit', AuditLogController::class)
+            ->middleware('permission:audit.view')
+            ->name('admin.audit.index');
     });
 });

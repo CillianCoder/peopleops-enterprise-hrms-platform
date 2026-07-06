@@ -26,6 +26,15 @@ final class PasswordResetLinkController extends Controller
 
         $status = Password::sendResetLink($request->only('email'));
 
+        activity('security')
+            ->event('password_reset_link_requested')
+            ->withProperties([
+                'email' => mb_strtolower($request->string('email')->toString()),
+                'status' => $status,
+                'ip' => $request->ip(),
+            ])
+            ->log('Password reset link was requested.');
+
         return $status === Password::RESET_LINK_SENT
             ? back()->with('success', __($status))
             : back()->withErrors(['email' => __($status)]);
